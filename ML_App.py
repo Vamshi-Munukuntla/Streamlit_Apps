@@ -20,7 +20,7 @@ st.title('ML APP')
 
 def main():
     activities = ['EDA', 'Visualisation', 'model', 'About Us']
-    option = st.sidebar.selectbox('Select an option:', activities)
+    option = st.sidebar.radio('Select an option:', activities)
 
     # DEALING WITH THE EDA PART
 
@@ -28,9 +28,11 @@ def main():
         st.subheader('Exploratory Data Analysis')
 
         data = st.file_uploader('Upload dataset: ', type=['csv', 'xlsx', 'txt', 'json'])
-        st.success("Data Successfully Uploaded.")
+
         if data is not None:
+            st.success("Data Successfully Uploaded.")
             df = pd.read_csv(data)
+            st.write('Top 10 rows in the data')
             st.dataframe(df.head(10))
 
             if st.checkbox('Display Shape'):
@@ -45,6 +47,14 @@ def main():
             if st.checkbox("Display summary "):
                 st.write(df.describe().T)
 
+            if st.checkbox('Display null values'):
+                st.write(df.isnull().sum())
+
+            if st.checkbox('Display data types'):
+                st.write(df.dtypes)
+
+            if st.checkbox('Display Correlation'):
+                st.write(df.corr())
 
 
 
