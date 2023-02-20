@@ -91,6 +91,8 @@ def main():
                 pie_chart = df[pie_columns].value_counts().plot.pie(autopct="%1.1f%%")
                 st.pyplot(fig)
 
+    # DEALING WITH THE MODEL BUILDING BLOCK
+
     elif option == 'Model Building':
         st.subheader('Model Building')
         data = st.file_uploader('Upload dataset: ', type=['csv', 'xlsx', 'txt', 'json'])
@@ -98,7 +100,6 @@ def main():
         if data is not None:
             st.success("Data Successfully Uploaded.")
             df = pd.read_csv(data)
-
             if st.checkbox('Select Multiple Columns'):
                 new_data = st.multiselect('Select your preferred columns', df.columns)
                 df1 = df[new_data]
@@ -111,39 +112,52 @@ def main():
                 models = ('KNN', 'SVM', 'Logistic Regression', 'Naive Bayes', 'Decision Tree')
                 classifier_name = st.sidebar.selectbox('Select a classifier for modelling', models)
 
-            def add_parameter(name_of_classifier):
+            def add_parameter(name_of_clf):
                 params = dict()
-                if name_of_classifier == 'SVM':
+                if name_of_clf == 'SVM':
                     C = st.sidebar.slider('C', 0.01, 15.0)
                     params['C'] = C
-                elif name_of_classifier == 'KNN':
+                elif name_of_clf == 'KNN':
                     K = st.sidebar.slider('K', min_value=1, max_value=15, step=2)
                     params['K'] = K
-                return params
+                    return params
 
             # calling the function
-            model_parameters = add_parameter(classifier_name)
+            params = add_parameter(classifier_name)
 
             # Defining a function for classifier
-            def get_classifier(name_of_classifier, params):
+            def get_classifier(name_of_clf, params):
                 clf = None
-                if name_of_classifier == 'SVM':
+                if name_of_clf == 'SVM':
                     clf = SVC(C=params['C'])
-                elif name_of_classifier == 'KNN':
+                elif name_of_clf == 'KNN':
                     clf = KNeighborsClassifier(n_neighbors=params['K'])
-                elif name_of_classifier == 'Logistic Regression':
+                elif name_of_clf == 'Logistic Regression':
                     clf = LogisticRegression()
-                elif name_of_classifier == 'Naive Bayes':
+                elif name_of_clf == 'Naive Bayes':
                     clf = GaussianNB()
-                elif name_of_classifier == 'Decision Tree':
+                elif name_of_clf == 'Decision Tree':
                     clf = DecisionTreeClassifier()
                 else:
                     st.warning('Select your choice of algorithm for model building')
-                    return clf
+                return clf
 
-            get_classifier(classifier_name, params)
+            clf = get_classifier(classifier_name, params)
 
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=seed)
+
+            clf.fit(X_train, y_train)
+            y_pred = clf.predict(X_test)
+            st.write('Predictions:', y_pred)
+
+            accuracy = accuracy_score(y_test, y_pred)
+            st.write('Name of Classifier', classifier_name)
+            st.write("Accuracy", accuracy)
+
+    else:
+
+
+
 
 
 if __name__ == "__main__":
